@@ -1,0 +1,24 @@
+variables:
+    GIT_LAB_REPOSITORY_URL: git.infra.cospace.de:4567/toolchains/toolchain-msp430/
+
+build-docker:
+  image: docker:dind
+  cache: {}
+  except:
+      - branches
+  only:
+      - /^(v[\d.]+).+$/
+  stage: build
+  script:
+      - export BUILD_DIR=`pwd`
+      - echo Test access rigths of JOB-TOKEN
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.infra.cospace.de:4567
+      - docker build -t ${GIT_LAB_REPOSITORY_URL}build-docker:latest .
+      - docker push ${GIT_LAB_REPOSITORY_URL}build-docker:latest
+      - docker build -t ${GIT_LAB_REPOSITORY_URL}build-docker:$CI_COMMIT_TAG .
+      - docker push ${GIT_LAB_REPOSITORY_URL}build-docker:$CI_COMMIT_TAG
+      - docker rmi ${GIT_LAB_REPOSITORY_URL}build-docker:latest ${GIT_LAB_REPOSITORY_URL}build-docker:$CI_COMMIT_TAG
+
+  tags:
+      - docker
+      - dind
