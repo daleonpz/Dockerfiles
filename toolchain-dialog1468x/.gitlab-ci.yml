@@ -1,0 +1,47 @@
+variables:
+    GIT_LAB_REPOSITORY_URL: git.infra.cospace.de:4567/toolchains/toolchain-dialog1468x/
+
+build-docker:
+  image: docker:dind
+  cache: {}
+  except:
+      - branches
+  only:
+      - /^(v[\d.]+).+$/
+  stage: build
+  script:
+      - export BUILD_DIR=`pwd`
+      - echo Test access rigths of JOB-TOKEN
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.infra.cospace.de:4567
+      - docker build --network host -t ${GIT_LAB_REPOSITORY_URL}build-docker:latest .
+      - docker push ${GIT_LAB_REPOSITORY_URL}build-docker:latest
+      - docker build --network host -t ${GIT_LAB_REPOSITORY_URL}build-docker:$CI_COMMIT_TAG .
+      - docker push ${GIT_LAB_REPOSITORY_URL}build-docker:$CI_COMMIT_TAG
+      - docker rmi ${GIT_LAB_REPOSITORY_URL}build-docker:latest ${GIT_LAB_REPOSITORY_URL}build-docker:$CI_COMMIT_TAG
+
+  tags:
+      - docker
+      - dind
+      
+build-docker-mkimage:
+  image: docker:dind
+  cache: {}
+  except:
+      - branches
+  only:
+      - /^(v[\d.]+).+$/
+  stage: build
+  script:
+      - export BUILD_DIR=`pwd`
+      - echo Test access rigths of JOB-TOKEN
+      - cd mkimagedocker
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.infra.cospace.de:4567
+      - docker build --network host -t ${GIT_LAB_REPOSITORY_URL}mkimage-docker:latest .
+      - docker push ${GIT_LAB_REPOSITORY_URL}mkimage-docker:latest
+      - docker build --network host -t ${GIT_LAB_REPOSITORY_URL}mkimage-docker:$CI_COMMIT_TAG .
+      - docker push ${GIT_LAB_REPOSITORY_URL}mkimage-docker:$CI_COMMIT_TAG
+      - docker rmi ${GIT_LAB_REPOSITORY_URL}mkimage-docker:latest ${GIT_LAB_REPOSITORY_URL}build-docker:$CI_COMMIT_TAG
+
+  tags:
+      - docker
+      - dind
