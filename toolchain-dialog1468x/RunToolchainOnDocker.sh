@@ -1,8 +1,8 @@
 #!/bin/bash
 
 TEST="all"
-IMAGE_NAME="daniel/test_msp430"
-DOCKERFILE_PATH="MSP430_toolchain.Dockerfile"
+IMAGE_NAME="toolchain/dialog1468x"
+DOCKERFILE_PATH="DIALOG_1468X_toolchain.Dockefile"
 
 echo "###############################"
 
